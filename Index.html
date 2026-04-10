@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turno Tracker Papá</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#1e3c72,#2a5298);
+  color:white;
+  text-align:center;
+}
+
+.card {
+  background: rgba(255,255,255,0.1);
+  margin:20px auto;
+  padding:20px;
+  border-radius:15px;
+  max-width:900px;
+}
+
+.turno { font-size:28px; font-weight:bold; }
+
+.manana{color:gold;}
+.tarde{color:orange;}
+.noche{color:deepskyblue;}
+.libre{color:lightgreen;}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+
+.day {
+  padding:10px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.1);
+}
+
+.hoy { border:2px solid cyan; }
+</style>
+</head>
+
+<body>
+
+<h1>🗓️ Turnos Papá</h1>
+
+<div class="card">
+  <div id="fecha"></div>
+  <div id="turno" class="turno"></div>
+  <div id="detalle"></div>
+  <div id="manana"></div>
+</div>
+
+<div class="card">
+  <h3>📅 Próximos 7 días</h3>
+  <div id="semana"></div>
+</div>
+
+<div class="card">
+  <h3 id="mesActual">📆 Calendario</h3>
+  <div id="calendario" class="grid"></div>
+</div>
+
+<script>
+
+// 🔥 TU FUNCIÓN (CORREGIDA SOLO NOMBRE DIA → MAÑANA)
+function obtenerTurnoReal(fecha) {
+
+  const base = new Date(2026, 3, 9);
+  base.setHours(0,0,0,0);
+
+  const f = new Date(fecha);
+  f.setHours(0,0,0,0);
+
+  let diff = Math.floor((f - base) / (1000 * 60 * 60 * 24));
+  let diaEnCiclo = ((diff % 27) + 27) % 27;
+
+  const subBloques = [
+    { tipo: 'Mañana', duracion: 2 },
+    { tipo: 'Tarde', duracion: 3 },
+    { tipo: 'Noche', duracion: 2 },
+    { tipo: 'Libre', duracion: 2 },
+
+    { tipo: 'Mañana', duracion: 3 },
+    { tipo: 'Tarde', duracion: 2 },
+    { tipo: 'Noche', duracion: 2 },
+    { tipo: 'Libre', duracion: 2 },
+
+    { tipo: 'Mañana', duracion: 2 },
+    { tipo: 'Tarde', duracion: 2 },
+    { tipo: 'Noche', duracion: 3 },
+    { tipo: 'Libre', duracion: 2 }
+  ];
+
+  let acumulado = 0;
+
+  for (let bloque of subBloques) {
+    if (diaEnCiclo < acumulado + bloque.duracion) {
+      return {
+        tipo: bloque.tipo,
+        dia: (diaEnCiclo - acumulado) + 1,
+        total: bloque.duracion
+      };
+    }
+    acumulado += bloque.duracion;
+  }
+}
+
+// estilos
+function estilo(turno){
+  return turno==="Mañana"?"manana":
+         turno==="Tarde"?"tarde":
+         turno==="Noche"?"noche":"libre";
+}
+
+function letra(turno){
+  return turno==="Mañana"?"M":
+         turno==="Tarde"?"T":
+         turno==="Noche"?"N":"L";
+}
+
+// 🔥 CARGAR
+function cargar(){
+
+  let hoy = new Date();
+  let data = obtenerTurnoReal(hoy);
+
+  document.getElementById("fecha").innerText =
+    "Hoy: "+hoy.toLocaleDateString();
+
+  let t = document.getElementById("turno");
+  t.innerText = data.tipo;
+  t.className = "turno "+estilo(data.tipo);
+
+  document.getElementById("detalle").innerText =
+    `Día ${data.dia} de ${data.total}`;
+
+  // mañana
+  let m = new Date();
+  m.setDate(hoy.getDate()+1);
+
+  document.getElementById("manana").innerText =
+    "👉 Mañana: "+obtenerTurnoReal(m).tipo;
+
+  // semana
+  let html="";
+  for(let i=0;i<7;i++){
+    let f = new Date();
+    f.setDate(hoy.getDate()+i);
+    let d = obtenerTurnoReal(f);
+    html += f.toLocaleDateString()+" - "+letra(d.tipo)+"<br>";
+  }
+  document.getElementById("semana").innerHTML = html;
+
+  generarCalendario(hoy);
+}
+
+// calendario
+function generarCalendario(fecha){
+
+  let año = fecha.getFullYear();
+  let mes = fecha.getMonth();
+
+  let inicio = new Date(año,mes,1).getDay();
+  let dias = new Date(año,mes+1,0).getDate();
+
+  let html="";
+
+  for(let i=0;i<inicio;i++) html+="<div></div>";
+
+  for(let d=1; d<=dias; d++){
+
+    let f = new Date(año,mes,d);
+    let data = obtenerTurnoReal(f);
+
+    let hoy = new Date();
+    let clase = f.toDateString()===hoy.toDateString()?"hoy":"";
+
+    html += `
+      <div class="day ${clase}">
+        ${d}<br>${letra(data.tipo)}
+      </div>
+    `;
+
+    const meses = [
+  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+];
+
+document.getElementById("mesActual").innerText =
+  "📆 " + meses[fecha.getMonth()] + " " + fecha.getFullYear();
+  }
+
+  document.getElementById("calendario").innerHTML = html;
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>
