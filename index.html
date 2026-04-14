@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turnos de Papá</title>
+
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Carlosbaltodanorepos06/Turnos_de_Trabajo/main/ICONO.png">
 
 <style>
@@ -15,16 +16,13 @@ body {
   margin:0;
 }
 
-h1{
-  margin-top:15px;
-}
+h1{ margin-top:15px; }
 
 .card {
   background: rgba(255,255,255,0.1);
-  margin:20px auto;
-  padding:20px;
+  margin:15px;
+  padding:15px;
   border-radius:15px;
-  max-width:900px;
 }
 
 .turno { font-size:28px; font-weight:bold; }
@@ -49,7 +47,7 @@ h1{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  font-size:14px;
+  font-size:13px;
 }
 
 .hoy { border:2px solid cyan; }
@@ -59,35 +57,24 @@ h1{
   background: rgba(0,0,0,0.3);
 }
 
-/* 📱 RESPONSIVE */
-@media (max-width: 600px){
+button{
+  margin:5px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#00c6ff;
+  color:black;
+  font-weight:bold;
+}
 
-  body {
-    font-size: 14px;
-  }
+/* FULLSCREEN */
+.fullscreen-activo body{
+  overflow:hidden;
+}
 
-  h1 {
-    font-size: 22px;
-  }
-
-  .card {
-    margin:10px;
-    padding:15px;
-  }
-
-  .turno {
-    font-size:22px;
-  }
-
-  .grid {
-    gap:3px;
-  }
-
-  .day {
-    font-size:11px;
-    padding:4px;
-  }
-
+@media (max-width:600px){
+  .turno{font-size:22px;}
+  .day{font-size:10px;}
 }
 </style>
 </head>
@@ -101,6 +88,10 @@ h1{
   <div id="turno" class="turno"></div>
   <div id="detalle"></div>
   <div id="manana"></div>
+
+  <br>
+  <button onclick="cargar()">🔄 Actualizar</button>
+  <button onclick="pantallaCompleta()">📱 Modo App</button>
 </div>
 
 <div class="card">
@@ -114,6 +105,15 @@ h1{
 </div>
 
 <script>
+
+// 🔥 INTERACCIÓN (IMPORTANTE PARA CHROME)
+document.addEventListener("click", ()=>{});
+
+function pantallaCompleta(){
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  }
+}
 
 function obtenerTurnoReal(fecha) {
 
@@ -175,7 +175,7 @@ function cargar(){
   let data = obtenerTurnoReal(hoy);
 
   document.getElementById("fecha").innerText =
-    "Hoy: "+hoy.toLocaleDateString();
+    "Hoy: "+hoy.toLocaleDateString("es-NI");
 
   let t = document.getElementById("turno");
   t.innerText = data.tipo;
@@ -195,7 +195,7 @@ function cargar(){
     let f = new Date();
     f.setDate(hoy.getDate()+i);
     let d = obtenerTurnoReal(f);
-    html += f.toLocaleDateString()+" - "+letra(d.tipo)+"<br>";
+    html += f.toLocaleDateString("es-NI")+" - "+letra(d.tipo)+"<br>";
   }
   document.getElementById("semana").innerHTML = html;
 
@@ -214,8 +214,7 @@ function generarCalendario(fecha){
 
   let html="";
 
-  // encabezado días
-  let diasSemana = ["L","M","M","J","V","S","D"];
+  let diasSemana = ["L","M","X","J","V","S","D"];
   for(let d of diasSemana){
     html += `<div class="day header-day">${d}</div>`;
   }
