@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turno Tracker Papá</title>
+<link rel="icon" type="image/png" sizes="32x32" href="Icon.png">
 
 <style>
 body {
@@ -41,6 +42,12 @@ body {
 }
 
 .hoy { border:2px solid cyan; }
+
+/* encabezado días */
+.header-day {
+  font-weight:bold;
+  background: rgba(0,0,0,0.3);
+}
 </style>
 </head>
 
@@ -67,7 +74,6 @@ body {
 
 <script>
 
-// 🔥 TU FUNCIÓN (CORREGIDA SOLO NOMBRE DIA → MAÑANA)
 function obtenerTurnoReal(fecha) {
 
   const base = new Date(2026, 3, 9);
@@ -110,7 +116,6 @@ function obtenerTurnoReal(fecha) {
   }
 }
 
-// estilos
 function estilo(turno){
   return turno==="Mañana"?"manana":
          turno==="Tarde"?"tarde":
@@ -123,7 +128,6 @@ function letra(turno){
          turno==="Noche"?"N":"L";
 }
 
-// 🔥 CARGAR
 function cargar(){
 
   let hoy = new Date();
@@ -139,14 +143,12 @@ function cargar(){
   document.getElementById("detalle").innerText =
     `Día ${data.dia} de ${data.total}`;
 
-  // mañana
   let m = new Date();
   m.setDate(hoy.getDate()+1);
 
   document.getElementById("manana").innerText =
     "👉 Mañana: "+obtenerTurnoReal(m).tipo;
 
-  // semana
   let html="";
   for(let i=0;i<7;i++){
     let f = new Date();
@@ -159,16 +161,23 @@ function cargar(){
   generarCalendario(hoy);
 }
 
-// calendario
 function generarCalendario(fecha){
 
   let año = fecha.getFullYear();
   let mes = fecha.getMonth();
 
   let inicio = new Date(año,mes,1).getDay();
+  inicio = (inicio === 0) ? 6 : inicio - 1;
+
   let dias = new Date(año,mes+1,0).getDate();
 
   let html="";
+
+  // 🔥 encabezado días
+  let diasSemana = ["L","M","M","J","V","S","D"];
+  for(let d of diasSemana){
+    html += `<div class="day header-day">${d}</div>`;
+  }
 
   for(let i=0;i<inicio;i++) html+="<div></div>";
 
@@ -185,15 +194,15 @@ function generarCalendario(fecha){
         ${d}<br>${letra(data.tipo)}
       </div>
     `;
-
-    const meses = [
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-];
-
-document.getElementById("mesActual").innerText =
-  "📆 " + meses[fecha.getMonth()] + " " + fecha.getFullYear();
   }
+
+  const meses = [
+    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+  ];
+
+  document.getElementById("mesActual").innerText =
+    "📆 " + meses[mes] + " " + año;
 
   document.getElementById("calendario").innerHTML = html;
 }
